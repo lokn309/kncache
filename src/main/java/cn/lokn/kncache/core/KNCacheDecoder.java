@@ -1,4 +1,4 @@
-package cn.lokn.kncache;
+package cn.lokn.kncache.core;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
