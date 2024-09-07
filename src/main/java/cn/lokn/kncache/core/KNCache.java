@@ -305,6 +305,63 @@ public class KNCache {
 
     //================== 4.hash end ====================
 
+    //================== 5.zset  ====================
+    public Integer zadd(String key, String[] vals, double[] scores) {
+        CacheEntry<LinkedHashSet<ZsetEntry>> entry = (CacheEntry<LinkedHashSet<ZsetEntry>>) map.get(key);
+        if (entry == null) {
+            entry = new CacheEntry<>(new LinkedHashSet<ZsetEntry>());
+            map.put(key, entry);
+        }
+        LinkedHashSet<ZsetEntry> exist = entry.getValue();
+        for (int i = 0; i < vals.length; i++) {
+            exist.add(new ZsetEntry(vals[i], scores[i]));
+        }
+        return vals.length;
+    }
+
+    public Integer zcard(String key) {
+        CacheEntry<LinkedHashSet<ZsetEntry>> entry = (CacheEntry<LinkedHashSet<ZsetEntry>>) map.get(key);
+        if (entry == null) return 0;
+        LinkedHashSet<ZsetEntry> exist = entry.getValue();
+        return exist.size();
+    }
+
+    public Integer zcount(String key, double min, double max) {
+        CacheEntry<?> entry = map.get(key);
+        if (entry == null) return null;
+        LinkedHashSet<ZsetEntry> exist = (LinkedHashSet<ZsetEntry>) entry.getValue();
+        return (int) exist.stream().filter(x -> x.getScore() >= min && x.getScore() <= max).count();
+    }
+
+    public Double zscore(String key, String val) {
+        CacheEntry<?> entry = map.get(key);
+        if (entry == null) return null;
+        LinkedHashSet<ZsetEntry> exist = (LinkedHashSet<ZsetEntry>) entry.getValue();
+        return exist.stream().filter(x -> x.getValue().equals(val))
+                .map(ZsetEntry::getScore).findFirst().orElse(null);
+    }
+
+    public Integer zrank(String key, String val) {
+        CacheEntry<?> entry = map.get(key);
+        if (entry == null) return null;
+        LinkedHashSet<ZsetEntry> exist = (LinkedHashSet<ZsetEntry>) entry.getValue();
+        Double zscore = zscore(key, val);
+        if (zscore == null) return null;
+        return (int) exist.stream().filter(x -> x.getScore()< zscore).count();
+    }
+
+    public Integer zrem(String key, String[] vals) {
+        CacheEntry<?> entry = map.get(key);
+        if (entry == null) return null;
+        LinkedHashSet<ZsetEntry> exist = (LinkedHashSet<ZsetEntry>) entry.getValue();
+        return vals == null ? 0 : (int) Arrays.stream(vals)
+                .map(x -> exist.removeIf(y -> y.getValue().equals(x)))
+                .filter(x -> x).count();
+    }
+
+
+    //================== 5.zset end ====================
+
 
     @Data
     @AllArgsConstructor
@@ -312,4 +369,13 @@ public class KNCache {
     public static class CacheEntry<T> {
         private T value;
     }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ZsetEntry {
+        private String value;
+        private double score;
+    }
+
 }
