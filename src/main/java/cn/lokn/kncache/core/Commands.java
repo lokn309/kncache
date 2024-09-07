@@ -53,11 +53,17 @@ public class Commands {
         register(new SremCommand());
         register(new SismemberCommand());
 
+        // hash: hset hget hlen hgetall hdel hexists hmget
+        register(new HsetCommand());
+        register(new HgetallCommand());
+        register(new HgetCommand());
+        register(new HlenCommand());
+        register(new HdelCommand());
+        register(new HmgetCommand());
+        register(new HexistsCommand());
+
         // zset
 
-
-
-        // hash
 
     }
 
